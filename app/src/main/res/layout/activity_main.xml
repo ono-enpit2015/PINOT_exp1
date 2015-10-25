@@ -10,4 +10,34 @@
         android:layout_height="wrap_content" >
     </ListView>
 
+    <Button
+        android:id="@+id/downloadButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="見出し文をダウンロード" />
+
+    <Button
+        android:id="@+id/kousinButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="各変数を反映" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+    <EditText
+        android:id="@+id/edit_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="名前を入力してから送信"/>
+
+    <Button
+        android:id="@+id/sendButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="結果を送信" />
+        </LinearLayout>
+
+
 </LinearLayout>

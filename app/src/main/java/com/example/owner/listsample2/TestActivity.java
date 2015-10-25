@@ -11,18 +11,23 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
+
 /**
  * Created by Owner on 2015/10/05.
  */
 public class TestActivity extends AppCompatActivity {
+    int hyojisuu = MainActivity.HyojiKensu;         //ウェブ上で変更できるようにする
     String line;
     int time_hyoji;
     String title_num;
-    final String LOGDIR = Environment.getExternalStorageDirectory().getPath()+"/data/";
+    final String LOGDIR = Environment.getExternalStorageDirectory().getPath()+"/data/"+"/exp/";
     File Title;
     File file1;
     File file2;
@@ -126,7 +131,7 @@ public class TestActivity extends AppCompatActivity {
         String number = intent.getStringExtra("NUMBER");
         switch (number){
             case "パターン１":
-                time_hyoji = 15000;
+                time_hyoji = MainActivity.Time1;
                 file1 = new File(SDFILE1_1);
                 file2 = new File(SDFILE1_2);
                 file3 = new File(SDFILE1_3);
@@ -167,7 +172,7 @@ public class TestActivity extends AppCompatActivity {
 
                 break;
             case "パターン２":
-                time_hyoji = 16000;
+                time_hyoji = MainActivity.Time2;
                 file1 = new File(SDFILE2_1);
                 file2 = new File(SDFILE2_2);
                 file3 = new File(SDFILE2_3);
@@ -207,7 +212,7 @@ public class TestActivity extends AppCompatActivity {
 
                 break;
             case "パターン３":
-                time_hyoji = 17000;
+                time_hyoji = MainActivity.Time3;
                 file1 = new File(SDFILE3_1);
                 file2 = new File(SDFILE3_2);
                 file3 = new File(SDFILE3_3);
@@ -247,7 +252,7 @@ public class TestActivity extends AppCompatActivity {
 
                 break;
             case "パターン４":
-                time_hyoji = 18000;
+                time_hyoji = MainActivity.Time4;
                 file1 = new File(SDFILE4_1);
                 file2 = new File(SDFILE4_2);
                 file3 = new File(SDFILE4_3);
@@ -287,7 +292,7 @@ public class TestActivity extends AppCompatActivity {
 
                 break;
             case "パターン５":
-                time_hyoji = 19000;
+                time_hyoji = MainActivity.Time5;
                 file1 = new File(SDFILE5_1);
                 file2 = new File(SDFILE5_2);
                 file3 = new File(SDFILE5_3);
@@ -327,7 +332,7 @@ public class TestActivity extends AppCompatActivity {
 
                 break;
             case "パターン６":
-                time_hyoji = 20000;
+                time_hyoji = MainActivity.Time6;
                 file1 = new File(SDFILE6_1);
                 file2 = new File(SDFILE6_2);
                 file3 = new File(SDFILE6_3);
@@ -367,7 +372,7 @@ public class TestActivity extends AppCompatActivity {
 
                 break;
             case "パターン７":
-                time_hyoji = 21000;
+                time_hyoji = MainActivity.Time7;
                 file1 = new File(SDFILE7_1);
                 file2 = new File(SDFILE7_2);
                 file3 = new File(SDFILE7_3);
@@ -407,18 +412,45 @@ public class TestActivity extends AppCompatActivity {
 
         }
 
+        //listに表示する要素を格納
         try {
             BufferedReader br = new BufferedReader(new FileReader(Title));
-                try {
-                    while((line = br.readLine()) != null){
-                        list.add(line);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            while((line = br.readLine()) != null){
+                list.add(line);
+            }
             br.close();
             } catch (IOException e1) {
                 e1.printStackTrace();
+        }
+
+        //title0_0.txtの見出し文に0と1を振り分け（AnswerActivityで表示するかどうか）
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(Title,false));
+            int ran0=0, ran1=0;
+                for(String title:list){
+                    Random rnd = new Random();
+                    int ran = rnd.nextInt(2);
+                    if((ran == 0) && (ran0 < 10-hyojisuu)){
+                        ran0++;
+                        bw.write(title+"\t\t"+ran);
+                        bw.newLine();
+                    }else if((ran == 1) && (ran1 < hyojisuu)){
+                        ran1++;
+                        bw.write(title+"\t\t"+ran);
+                        bw.newLine();
+                    }else if((ran == 0) && (ran0 == 10-hyojisuu)){
+                        ran = 1;
+                        bw.write(title+"\t\t"+ran);
+                        bw.newLine();
+                    }else if((ran == 1) && (ran1 == hyojisuu)){
+                        ran = 0;
+                        bw.write(title+"\t\t"+ran);
+                        bw.newLine();
+                    }
+                }
+            bw.close();
+        } catch (IOException e1) {
+            e1.printStackTrace();
         }
 
         ArrayAdapter adapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1, list);
@@ -436,6 +468,8 @@ public class TestActivity extends AppCompatActivity {
                 Intent intent = new Intent();//this,TestActivity.class
                 intent.setClassName("com.example.owner.listsample2", "com.example.owner.listsample2.AnswerActivity");
                 intent.putExtra("FILE_NUMBER", title_num);
+                //String time = String.valueOf(time_hyoji);
+                intent.putExtra("HyojiTime", time_hyoji);
                 startActivity(intent);
             }
         }, time_hyoji);
