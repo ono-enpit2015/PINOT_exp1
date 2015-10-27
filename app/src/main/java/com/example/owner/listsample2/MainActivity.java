@@ -18,6 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import org.apache.commons.net.ftp.FTP;
@@ -27,6 +28,7 @@ import org.apache.commons.net.ftp.FTPReply;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -35,7 +37,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 public class MainActivity extends AppCompatActivity {
@@ -47,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     File directory;
     String LOGDIR = Environment.getExternalStorageDirectory().getPath();
     String LOG = Environment.getExternalStorageDirectory().getPath()+"/data/exp/hensu.txt";
+    String EXP = Environment.getExternalStorageDirectory().getPath()+"/data/exp/";
     String path;
     String resultFileName;
     String date;
@@ -63,13 +68,17 @@ public class MainActivity extends AppCompatActivity {
     static int KijiKensu;
     AsyncTask<Void, Void, String> task;
 
+    ArrayList<Map<String,Object>> list = new ArrayList<Map<String, Object>>();
+    SimpleAdapter adapter;
+    ListView lv;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         //ListViewに表示させる内容
-        ArrayList<String> list = new ArrayList<String>();
+        /*ArrayList<String> list = new ArrayList<String>();
         list.add("パターン１");
         list.add("パターン２");
         list.add("パターン３");
@@ -80,9 +89,23 @@ public class MainActivity extends AppCompatActivity {
 
         //ListViewとデータをつなぐアダプタを作成
         //アイテムのレイアウトはAndroid組み込みの物(android.R.layout.simple_list_item_1)を使用　→変更　自作のレイアウト(R.layout.item,R.id.item_name)に
-        ArrayAdapter adapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1, list);
+        ArrayAdapter adapter = new ArrayAdapter(this,R.layout.item,R.id.item_name, list);
         ListView lv = (ListView)findViewById(R.id.listView1);
         //ListViewにアダプタ登録
+        lv.setAdapter(adapter);*/
+
+        // ListView を取得
+        lv = (ListView) findViewById(R.id.listView1);
+        // SimpleAdapterに渡すArrayList作成
+        createData();
+        // リストビューに渡すアダプタを生成
+        adapter = new SimpleAdapter(
+                this,
+                list,//ArrayList
+                R.layout.item,//ListView内の1項目を定義したxml
+        new String[] { "pattern", "comment"},//mapのキー
+        new int[] {R.id.item_name, R.id.comment});//item.xml内のid
+        // アダプタをセット
         lv.setAdapter(adapter);
 
         //アイテムがクリックされたときの処理
@@ -96,9 +119,10 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent();//this,TestActivity.class
                 intent.setClassName("com.example.owner.listsample2", "com.example.owner.listsample2.TestActivity");
 
-                String number = (String) parent.getItemAtPosition(position);      // 選択された項目の要素名を取得
+                //String number = (String) parent.getItemAtPosition(position);      // 選択された項目の要素名を取得
                 //Toast.makeText(MainActivity.this, number, Toast.LENGTH_SHORT).show();
-                intent.putExtra("NUMBER", number);
+                //intent.putExtra("NUMBER", number);
+                intent.putExtra("NUMBER", position);
 
                 startActivity(intent);
             }
@@ -126,6 +150,26 @@ public class MainActivity extends AppCompatActivity {
         }else{
             Toast ts = Toast.makeText(this, "ファイル(hensu.txt)は存在しません", Toast.LENGTH_LONG);
             ts.show();
+        }
+    }
+
+    private void createData() {
+        for (int n = 1; n <= 7; n++) {
+            int k = 0;
+            Map data = new HashMap();
+            data.put("pattern", "パターン" + n);
+
+            for (int m = 1; m <= 5; m++) {
+                File P = new File(EXP + "/title" + n + "/title" + n + "_"+m+".txt");
+                if(P.exists())k++;
+            }
+
+            if(k == 0){
+                data.put("comment", "終了です");
+            }else {
+                data.put("comment", "あと" + k + "回です");
+            }
+            list.add(data);
         }
     }
 

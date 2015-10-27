@@ -128,9 +128,9 @@ public class TestActivity extends AppCompatActivity {
         ArrayList<String> list = new ArrayList<String>();
 
         Intent intent = getIntent();
-        String number = intent.getStringExtra("NUMBER");
+        int number = intent.getIntExtra("NUMBER",0);
         switch (number){
-            case "パターン１":
+            case 0:
                 time_hyoji = MainActivity.Time1;
                 file1 = new File(SDFILE1_1);
                 file2 = new File(SDFILE1_2);
@@ -171,7 +171,7 @@ public class TestActivity extends AppCompatActivity {
                 }
 
                 break;
-            case "パターン２":
+            case 1:
                 time_hyoji = MainActivity.Time2;
                 file1 = new File(SDFILE2_1);
                 file2 = new File(SDFILE2_2);
@@ -211,7 +211,7 @@ public class TestActivity extends AppCompatActivity {
                 }
 
                 break;
-            case "パターン３":
+            case 2:
                 time_hyoji = MainActivity.Time3;
                 file1 = new File(SDFILE3_1);
                 file2 = new File(SDFILE3_2);
@@ -251,7 +251,7 @@ public class TestActivity extends AppCompatActivity {
                 }
 
                 break;
-            case "パターン４":
+            case 3:
                 time_hyoji = MainActivity.Time4;
                 file1 = new File(SDFILE4_1);
                 file2 = new File(SDFILE4_2);
@@ -291,7 +291,7 @@ public class TestActivity extends AppCompatActivity {
                 }
 
                 break;
-            case "パターン５":
+            case 4:
                 time_hyoji = MainActivity.Time5;
                 file1 = new File(SDFILE5_1);
                 file2 = new File(SDFILE5_2);
@@ -331,7 +331,7 @@ public class TestActivity extends AppCompatActivity {
                 }
 
                 break;
-            case "パターン６":
+            case 5:
                 time_hyoji = MainActivity.Time6;
                 file1 = new File(SDFILE6_1);
                 file2 = new File(SDFILE6_2);
@@ -371,7 +371,7 @@ public class TestActivity extends AppCompatActivity {
                 }
 
                 break;
-            case "パターン７":
+            case 6:
                 time_hyoji = MainActivity.Time7;
                 file1 = new File(SDFILE7_1);
                 file2 = new File(SDFILE7_2);
