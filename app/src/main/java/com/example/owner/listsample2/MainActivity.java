@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
     String LOGDIR = Environment.getExternalStorageDirectory().getPath();
     String LOG = Environment.getExternalStorageDirectory().getPath()+"/data/exp/hensu.txt";
     String EXP = Environment.getExternalStorageDirectory().getPath()+"/data/exp/";
-    String path;
+    static String path;
     String resultFileName;
     String date;
     CharSequence userName;
@@ -321,6 +321,7 @@ public class MainActivity extends AppCompatActivity {
                 DataSend();
                 task.execute();
 
+                //new UploadAsyncTask(MainActivity.this).execute(path);
                 //Toast.makeText(getApplicationContext(), "結果を送信しました", Toast.LENGTH_SHORT).show();
             }
         }
@@ -359,20 +360,19 @@ public class MainActivity extends AppCompatActivity {
                     ftp = new FTPClient();
 
                     // エンコーディング
-                    ftp.setControlEncoding("Windows-31J");     //コネクトの前に設定     Windowsサーバー:"Windows-31J"or"SJIS"
+                    ftp.setControlEncoding("SJIS");     //コネクトの前に設定     Windowsサーバー:"Windows-31J"or"SJIS"
 
                     // 接続前タイムアウト：15秒
                     ftp.setDefaultTimeout(15000);
-                    //Log.e("デバック", "0");
+                    Log.e("デバック", "0");
                     // 接続
-                    ftp.connect("koblab.cs.ehime-u.ac.jp", 21);       //ホスト名「koblab.cs.ehime-u.ac.jp」に対して、ポート「21」に接続する   133.71.201.142
-                    //Log.e("デバック", "0.5");
+                    ftp.connect("133.71.201.164", 21);       //ホスト名「koblab.cs.ehime-u.ac.jp」に対して、ポート「21」に接続する   133.71.201.142
+                    Log.e("デバック", "1");
                     // 接続エラーの場合
                     if (!FTPReply.isPositiveCompletion(ftp.getReplyCode())) {
 
                         return "サーバーに接続できません";
                     }
-                    //Log.e("デバック", "1");
                     // 接続後タイムアウト：10秒
                     ftp.setSoTimeout(15000);
 
@@ -381,13 +381,14 @@ public class MainActivity extends AppCompatActivity {
 
                         return "サーバーの認証に失敗しました";
                     }
-                    //Log.e("デバック", "2");
+                    Log.e("デバック", "2");
                     // ファイル種別：アスキーモード
-                    ftp.setFileType(FTP.BINARY_FILE_TYPE);//ASCII_FILE_TYPE
+                    ftp.setFileType(FTP.ASCII_FILE_TYPE);//BINARY_FILE_TYPE
                     // PASVモード
                     ftp.enterLocalPassiveMode();
                     // タイムアウト：10秒
                     ftp.setDataTimeout(20000);
+                    Log.e("デバック", "3");
 
                     // 受信元のディレクトリを作成
                     //String path = Environment.getExternalStorageDirectory().getPath() + "/SAMPLE/";
@@ -404,7 +405,7 @@ public class MainActivity extends AppCompatActivity {
                     fis = new FileInputStream(path);
                     //Log.e("デバック", ""+path);
                     //Log.e("デバック", ""+resultFileName);
-                    if (!ftp.storeFile("/home/ono/public_html/result/"+resultFileName, fis)) {
+                    if (!ftp.storeFile("/home/ono/result/"+resultFileName, fis)) {
 
                         return "ファイルの送信に失敗しました";
                     }
