@@ -38,9 +38,16 @@ public class AnswerActivity extends AppCompatActivity {
     ListView listView;
     HashMap map = new HashMap();
     String line;
+    String line2;
+    String line3;
     String title;
     boolean flag;
-    int match;
+    int ari_match;
+    int nasi_match;
+    int ari_miss;
+    int nasi_miss;
+    int true_count;
+    int false_count;
     final String LOGDIR = Environment.getExternalStorageDirectory().getPath()+"/data/"+"/exp/";
     File TEST;
     File Mix_flag;
@@ -394,7 +401,7 @@ public class AnswerActivity extends AppCompatActivity {
                 for(String title:list){
                     Random rnd = new Random();
                     int ran = rnd.nextInt(2);
-                    if((ran == 0) && (ran0 < 10-hyojisuu)){
+                    if((ran == 0) && (ran0 < kijisuu-hyojisuu)){
                         ran0++;
                         bw.write(title+"\t\t"+ran);
                         bw.newLine();
@@ -402,7 +409,7 @@ public class AnswerActivity extends AppCompatActivity {
                         ran1++;
                         bw.write(title+"\t\t"+ran);
                         bw.newLine();
-                    }else if((ran == 0) && (ran0 == 10-hyojisuu)){
+                    }else if((ran == 0) && (ran0 == kijisuu-hyojisuu)){
                         ran = 1;
                         bw.write(title+"\t\t"+ran);
                         bw.newLine();
@@ -553,11 +560,15 @@ public class AnswerActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-
-            try {
+            //答え合わせ
+            /*try {
                 BufferedReader br2 = new BufferedReader(new FileReader(Title));//TestActivityで表示したもの
-                //答え合わせ
-                match = 0;
+                ari_match = 0;
+                nasi_match = 0;
+                ari_miss = 0;
+                nasi_miss = 0;
+                true_count = 0;
+                false_count = 0;
                 while ((title = br2.readLine()) != null) {
                     StringTokenizer tok = new StringTokenizer(title, "\t\t");
                     String tok2 = tok.nextToken();
@@ -567,15 +578,19 @@ public class AnswerActivity extends AppCompatActivity {
                             StringTokenizer token = new StringTokenizer(line, "\t\t");
                             String t = token.nextToken();
                             String f = token.nextToken();
-                            if (f.equals("true")) flag = true;
-                            else flag = false;
+                            if (f.equals("true")) {
+                                flag = true;
+                            }
+                            else {
+                                flag = false;
+                            }
                             System.out.println(tok2);
                             System.out.println(t);
                             System.out.println(f);
                             if (tok2.equals(t)) {
                                 if (flag) {
-                                    match++;
-                                    Log.e("match", "" + match);
+                                    ari_match++;
+                                    //Log.e("match", "" + ari_match);
                                 }
                                 break;
                             }
@@ -590,7 +605,87 @@ public class AnswerActivity extends AppCompatActivity {
                 try {
                     BufferedWriter bw = new BufferedWriter(new FileWriter(Result, true));
                     //bw.write(file_number + "\t\t" + "表示時間(ミリ秒)：" + Hyoji_Jikan + "\t\t" + "正解数：" + match + "\t\t" + "表示件数：" + hyojisuu + "\t\t" + "記事件数：" + kijisuu);
-                    bw.write(file_number + "\t\t" + "HyojiJikan(mms):" + Hyoji_Jikan + "\t\t" + "Seikai:" + match + "\t\t" + "HyojiKensu:" + hyojisuu + "\t\t" + "KijiKensu:" + kijisuu);
+                    bw.write(file_number + "\t\t" + "HyojiJikan(mms):" + Hyoji_Jikan + "\t\t" + "Seikai(o-o):" + ari_match + "Seikai(x-x):" + nasi_match + "Miss(o-x):" + ari_miss + "Miss(x-o):" + nasi_miss + "\t\t" + "HyojiKensu:" + hyojisuu + "\t\t" + "KijiKensu:" + kijisuu);
+                    bw.newLine();
+                    bw.close();
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+            }catch (IOException e){
+                e.printStackTrace();
+            }*/
+            try {
+                BufferedReader br2 = new BufferedReader(new FileReader(Mix));
+                ari_match = 0;
+                nasi_match = 0;
+                ari_miss = 0;
+                nasi_miss = 0;
+                true_count = 0;
+                false_count = 0;
+                while ((line = br2.readLine()) != null) {
+                    StringTokenizer tok = new StringTokenizer(line, "\t\t");
+                    String tok_title = tok.nextToken();
+                    String tok_flag = tok.nextToken();
+                    if (tok_flag.equals("true")) {
+                        true_count++;
+                        flag = true;
+                    }
+                    else {
+                        false_count++;
+                        flag = false;
+                    }
+                    try {
+                        BufferedReader br3 = new BufferedReader(new FileReader(Title));//title.txtの内容
+                        while ((line2 = br3.readLine()) != null) {
+                            StringTokenizer tok2 = new StringTokenizer(line2, "\t\t");
+                            String tok2_title = tok2.nextToken();
+                            String tok2_ransu = tok2.nextToken();
+                            if (tok2_ransu.equals("1") && tok_title.equals(tok2_title)) {
+                                if(flag){
+                                    ari_match++;
+                                }else{
+                                    nasi_miss++;
+                                }
+                                break;
+                            }
+                        }
+                        br3.close();
+                    }catch (IOException e){
+                        e.printStackTrace();
+                    }
+                    try {
+                        BufferedReader br4 = new BufferedReader(new FileReader(TEST));//test.txtの内容
+                        while ((line3 = br4.readLine()) != null) {
+                            StringTokenizer tok3 = new StringTokenizer(line3, "\t\t");
+                            String tok3_title = tok3.nextToken();
+                            String tok3_ransu = tok3.nextToken();
+                            if (tok3_ransu.equals("0") && tok_title.equals(tok3_title)) {
+                                if(flag){
+                                    ari_miss++;
+                                }else{
+                                    nasi_match++;
+                                }
+                                break;
+                            }
+                        }
+                        br4.close();
+                    }catch (IOException e){
+                        e.printStackTrace();
+                    }
+                }
+                br2.close();
+                Result.createNewFile();
+                try {
+                    int all = ((ari_match + nasi_match)*100) / (true_count + false_count);
+                    int ari = (ari_match*100) / true_count;
+                    int nasi = (nasi_match*100) / false_count;
+                    double a = (12 + 45) / (true_count + false_count);
+                    double aa = (ari_match + nasi_match);
+                    double aaa = (true_count + false_count);
+                    Log.e("seikairitu", "" + ari_match + ":" + ari_miss + ":" + nasi_match + ":" + nasi_miss + ":" + true_count + ":" + false_count);
+                    Log.e("seikairitu", "" + all + ":" + ari + ":" + nasi + ":::" + a + ":" + aa + ":" + aaa);
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(Result, true));
+                    bw.write(file_number + "\t\t" + "HyojiJikan(mms):" + Hyoji_Jikan + "\t\t" + "HyojiKensu:" + hyojisuu + "\t\t" + "KijiKensu:" + kijisuu + "\t\t" + "Seikai(o-o):" + ari_match +  "\t\t" + "Seikai(x-x):" + nasi_match +  "\t\t" + "Miss(o-x):" + ari_miss +  "\t\t" + "Miss(x-o):" + nasi_miss + "\t\t" + "SeikaiALL(%):" + all + "\t\t" + "SeikaiARI(%):" + ari + "\t\t" + "SeikaiNASI(%):" + nasi);
                     bw.newLine();
                     bw.close();
                 }catch (IOException e){

@@ -24,6 +24,7 @@ import java.util.Random;
  */
 public class TestActivity extends AppCompatActivity {
     int hyojisuu = MainActivity.HyojiKensu;         //ウェブ上で変更できるようにする
+    int kijisuu = MainActivity.KijiKensu;
     String line;
     int time_hyoji;
     String title_num;
@@ -430,7 +431,7 @@ public class TestActivity extends AppCompatActivity {
                 for(String title:list){
                     Random rnd = new Random();
                     int ran = rnd.nextInt(2);
-                    if((ran == 0) && (ran0 < 10-hyojisuu)){
+                    if((ran == 0) && (ran0 < kijisuu-hyojisuu)){
                         ran0++;
                         bw.write(title+"\t\t"+ran);
                         bw.newLine();
@@ -438,7 +439,7 @@ public class TestActivity extends AppCompatActivity {
                         ran1++;
                         bw.write(title+"\t\t"+ran);
                         bw.newLine();
-                    }else if((ran == 0) && (ran0 == 10-hyojisuu)){
+                    }else if((ran == 0) && (ran0 == kijisuu-hyojisuu)){
                         ran = 1;
                         bw.write(title+"\t\t"+ran);
                         bw.newLine();
