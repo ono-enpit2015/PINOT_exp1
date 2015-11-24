@@ -525,6 +525,9 @@ public class AnswerActivity extends AppCompatActivity {
 
         Button infoButton = (Button)findViewById(R.id.infoButton);
         infoButton.setOnClickListener(infoButtonOnClickListener);
+
+        Button nButton = (Button)findViewById(R.id.nButton);
+        nButton.setOnClickListener(nButtonOnClickListener);
     }
 
     private View.OnClickListener infoButtonOnClickListener = new View.OnClickListener() {
@@ -677,13 +680,11 @@ public class AnswerActivity extends AppCompatActivity {
                 Result.createNewFile();
                 try {
                     int all = ((ari_match + nasi_match)*100) / (true_count + false_count);
-                    int ari = (ari_match*100) / true_count;
+                    int ari = 0;
+                    if(true_count != 0){
+                        ari = (ari_match * 100) / true_count;
+                    }
                     int nasi = (nasi_match*100) / false_count;
-                    double a = (12 + 45) / (true_count + false_count);
-                    double aa = (ari_match + nasi_match);
-                    double aaa = (true_count + false_count);
-                    Log.e("seikairitu", "" + ari_match + ":" + ari_miss + ":" + nasi_match + ":" + nasi_miss + ":" + true_count + ":" + false_count);
-                    Log.e("seikairitu", "" + all + ":" + ari + ":" + nasi + ":::" + a + ":" + aa + ":" + aaa);
                     BufferedWriter bw = new BufferedWriter(new FileWriter(Result, true));
                     bw.write(file_number + "\t\t" + "HyojiJikan(mms):" + Hyoji_Jikan + "\t\t" + "HyojiKensu:" + hyojisuu + "\t\t" + "KijiKensu:" + kijisuu + "\t\t" + "Seikai(o-o):" + ari_match +  "\t\t" + "Seikai(x-x):" + nasi_match +  "\t\t" + "Miss(o-x):" + ari_miss +  "\t\t" + "Miss(x-o):" + nasi_miss + "\t\t" + "SeikaiALL(%):" + all + "\t\t" + "SeikaiARI(%):" + ari + "\t\t" + "SeikaiNASI(%):" + nasi);
                     bw.newLine();
@@ -719,6 +720,111 @@ public class AnswerActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private  View.OnClickListener nButtonOnClickListener = new View.OnClickListener(){
+        @Override
+        public void onClick(View v) {
+            hoge();
+        }
+    };
+
+    public void hoge() {
+        final String DIR = Environment.getExternalStorageDirectory().getPath()+"/data/"+"/hyz/";
+        final String RE = DIR + "result.txt";
+        boolean ff;
+        String a;
+        String b;
+        String c;
+        File Re = new File(RE);
+        for (int i = 1; i <= 7; i++) {
+            for (int j = 1; j <= 5;j++) {
+                String file_num = "file"+i+j;
+                String TE = DIR+"/title"+i+"/test"+i+"_"+j+".txt";
+                String TI = DIR+"/title"+i+"/title"+i+"_"+j+"fin.txt";
+                String MI = DIR+"/title"+i+"/mix"+i+"_"+j+".txt";
+                File Te = new File(TE);
+                File Ti = new File(TI);
+                File Mi = new File(MI);
+                int ari_match2 = 0;
+                int nasi_match2 = 0;
+                int ari_miss2 = 0;
+                int nasi_miss2 = 0;
+                int true_count2 = 0;
+                int false_count2 = 0;
+                    try {
+                        BufferedReader br2 = new BufferedReader(new FileReader(Mi));
+                        while ((a = br2.readLine()) != null) {
+                            StringTokenizer tok = new StringTokenizer(a, "\t\t");
+                            String tok_title = tok.nextToken();
+                            String tok_flag = tok.nextToken();
+                            if (tok_flag.equals("true")) {
+                                true_count2++;
+                                ff = true;
+                            } else {
+                                false_count2++;
+                                ff = false;
+                            }
+                            try {
+                                BufferedReader br3 = new BufferedReader(new FileReader(Ti));//title.txtの内容
+                                while ((b = br3.readLine()) != null) {
+                                    StringTokenizer tok2 = new StringTokenizer(b, "\t\t");
+                                    String tok2_title = tok2.nextToken();
+                                    String tok2_ransu = tok2.nextToken();
+                                    if (tok2_ransu.equals("1") && tok_title.equals(tok2_title)) {
+                                        if (ff) {
+                                            ari_match2++;
+                                        } else {
+                                            nasi_miss2++;
+                                        }
+                                        break;
+                                    }
+                                }
+                                br3.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            try {
+                                BufferedReader br4 = new BufferedReader(new FileReader(Te));//test.txtの内容
+                                while ((c = br4.readLine()) != null) {
+                                    StringTokenizer tok3 = new StringTokenizer(c, "\t\t");
+                                    String tok3_title = tok3.nextToken();
+                                    String tok3_ransu = tok3.nextToken();
+                                    if (tok3_ransu.equals("0") && tok_title.equals(tok3_title)) {
+                                        if (ff) {
+                                            ari_miss2++;
+                                        } else {
+                                            nasi_match2++;
+                                        }
+                                        break;
+                                    }
+                                }
+                                br4.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        br2.close();
+                        Re.createNewFile();
+                        try {
+                            int all2 = ((ari_match2 + nasi_match2) * 100) / (true_count2 + false_count2);
+                            int ari2 = 0;
+                            if(true_count2 != 0){
+                                ari2 = (ari_match2 * 100) / true_count2;
+                            }
+                            int nasi2 = (nasi_match2 * 100) / false_count2;
+                            BufferedWriter bw = new BufferedWriter(new FileWriter(Re, true));
+                            bw.write(file_num + "\t\t" + "Seikai(o-o):" + ari_match2 + "\t\t" + "Seikai(x-x):" + nasi_match2 + "\t\t" + "Miss(o-x):" + ari_miss2 + "\t\t" + "Miss(x-o):" + nasi_miss2 + "\t\t" + "SeikaiALL(%):" + all2 + "\t\t" + "SeikaiARI(%):" + ari2 + "\t\t" + "SeikaiNASI(%):" + nasi2);
+                            bw.newLine();
+                            bw.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
     }
 
 }
