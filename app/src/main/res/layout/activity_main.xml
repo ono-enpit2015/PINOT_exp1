@@ -4,11 +4,27 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <ListView
+    <!--<ListView
         android:id="@+id/listView1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
-    </ListView>
+    </ListView>-->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <Button
+        android:id="@+id/startButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="計測実験を開始" />
+        <TextView
+            android:id="@+id/message"
+            android:textSize="20sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 
         <Button
         android:id="@+id/downloadButton"
@@ -20,7 +36,7 @@
         android:id="@+id/kousinButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="各変数を反映" />
+        android:text="実験の条件を変更" />
 
     <LinearLayout
         android:layout_width="match_parent"

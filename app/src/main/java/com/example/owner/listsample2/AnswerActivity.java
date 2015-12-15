@@ -48,20 +48,26 @@ public class AnswerActivity extends AppCompatActivity {
     int nasi_miss;
     int true_count;
     int false_count;
-    final String LOGDIR = Environment.getExternalStorageDirectory().getPath()+"/data/"+"/exp/";
+    final String LOGDIR = Environment.getExternalStorageDirectory().getPath()+"/data/exp/";
     File TEST;
+    String SDFILE1;
     File Mix_flag;
     final String Mix_new = LOGDIR + "mix_new.txt";
     File Title;
+    String SDFILE2;
     File Mix;
+    String SDFILE3;
     final String RESULT = LOGDIR + "result.txt";
     File Result = new File(RESULT);
     String file_number;
-    int Hyoji_Jikan;
-    int hyojisuu = MainActivity.HyojiKensu;         //ウェブ上で変更できるようにする
-    int kijisuu = MainActivity.KijiKensu;
+    int displaytime;
+    int folda_num;
+    String LOG = Environment.getExternalStorageDirectory().getPath()+"/data/exp/sintyoku.txt";
+    String LOG2 = Environment.getExternalStorageDirectory().getPath()+"/data/exp/sintyoku2.txt";
+    File Sintyoku = new File(LOG);
+    File Sintyoku2 = new File(LOG2);
 
-    final String TEST1_1 = LOGDIR + "/title1/" + "test1_1.txt";
+    /*final String TEST1_1 = LOGDIR + "/title1/" + "test1_1.txt";
     final String TEST1_2 = LOGDIR + "/title1/" + "test1_2.txt";
     final String TEST1_3 = LOGDIR + "/title1/" + "test1_3.txt";
     final String TEST1_4 = LOGDIR + "/title1/" + "test1_4.txt";
@@ -187,7 +193,7 @@ public class AnswerActivity extends AppCompatActivity {
     final String Mix7_2 = LOGDIR + "/title7/" + "mix7_2.txt";
     final String Mix7_3 = LOGDIR + "/title7/" + "mix7_3.txt";
     final String Mix7_4 = LOGDIR + "/title7/" + "mix7_4.txt";
-    final String Mix7_5 = LOGDIR + "/title7/" + "mix7_5.txt";
+    final String Mix7_5 = LOGDIR + "/title7/" + "mix7_5.txt";*/
     
 
     @Override
@@ -196,9 +202,9 @@ public class AnswerActivity extends AppCompatActivity {
         setContentView(R.layout.layout_of_answeractivity);
 
         Intent intent = getIntent();
-        file_number = intent.getStringExtra("FILE_NUMBER");
-        Hyoji_Jikan = intent.getIntExtra("HyojiTime", 0);
-        //System.out.println("Answer:"+Hyoji_Jikan);
+        file_number = intent.getStringExtra("TITLE_NUMBER");
+        displaytime = intent.getIntExtra("DISPLAYTIME", 0);
+        folda_num = intent.getIntExtra("NUMBER", 0);
 
         try {
             Mix_flag = new File(Mix_new);
@@ -206,8 +212,15 @@ public class AnswerActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        SDFILE1 = LOGDIR+"/title"+folda_num+"/test"+file_number+".txt";
+        TEST = new File(SDFILE1);
+        SDFILE2 = LOGDIR+"/title"+folda_num+"/title"+file_number+".txt";
+        Title = new File(SDFILE2);
+        SDFILE3 = LOGDIR+"/title"+folda_num+"/mix"+file_number+".txt";
+        Mix = new File(SDFILE3);
         
-        switch (file_number){
+        /*switch (file_number){
             case "file11":
                 TEST = new File(TEST1_1);
                 Title = new File(SDFILE1_1fin);
@@ -382,7 +395,7 @@ public class AnswerActivity extends AppCompatActivity {
                 TEST = new File(TEST7_5);
                 Title = new File(SDFILE7_5fin);
                 Mix = new File(Mix7_5);
-        }
+        }*/
         
         ArrayList<String> list = new ArrayList<String>();
         try {
@@ -401,19 +414,19 @@ public class AnswerActivity extends AppCompatActivity {
                 for(String title:list){
                     Random rnd = new Random();
                     int ran = rnd.nextInt(2);
-                    if((ran == 0) && (ran0 < kijisuu-hyojisuu)){
+                    if((ran == 0) && (ran0 < MainActivity.DisplayNumAll-MainActivity.DisplayNum)){
                         ran0++;
                         bw.write(title+"\t\t"+ran);
                         bw.newLine();
-                    }else if((ran == 1) && (ran1 < hyojisuu)){
+                    }else if((ran == 1) && (ran1 < MainActivity.DisplayNum)){
                         ran1++;
                         bw.write(title+"\t\t"+ran);
                         bw.newLine();
-                    }else if((ran == 0) && (ran0 == kijisuu-hyojisuu)){
+                    }else if((ran == 0) && (ran0 == MainActivity.DisplayNumAll-MainActivity.DisplayNum)){
                         ran = 1;
                         bw.write(title+"\t\t"+ran);
                         bw.newLine();
-                    }else if((ran == 1) && (ran1 == hyojisuu)){
+                    }else if((ran == 1) && (ran1 == MainActivity.DisplayNum)){
                         ran = 0;
                         bw.write(title+"\t\t"+ran);
                         bw.newLine();
@@ -503,7 +516,7 @@ public class AnswerActivity extends AppCompatActivity {
         //ListViewにアダプタ登録
         lv.setAdapter(adapter);
 
-        for(int i = 0; i < kijisuu; i++){        //記事数は動的に変更できるようにする
+        for(int i = 0; i < MainActivity.DisplayNumAll; i++){        //記事数は動的に変更できるようにする
             map.put(i,false);
         }
 
@@ -526,15 +539,38 @@ public class AnswerActivity extends AppCompatActivity {
         Button infoButton = (Button)findViewById(R.id.infoButton);
         infoButton.setOnClickListener(infoButtonOnClickListener);
 
-        Button nButton = (Button)findViewById(R.id.nButton);
-        nButton.setOnClickListener(nButtonOnClickListener);
+        //Button nButton = (Button)findViewById(R.id.nButton);
+        //nButton.setOnClickListener(nButtonOnClickListener);
     }
 
     private View.OnClickListener infoButtonOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent();
-            intent.setClassName("com.example.owner.listsample2", "com.example.owner.listsample2.MainActivity");
+            //sintyoku.txtを編集
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(Sintyoku));
+                BufferedWriter bw = new BufferedWriter(new FileWriter(Sintyoku2,false));
+                String line;
+                StringTokenizer tok;
+                String tok_title;
+                String tok_flag;
+                while((line = br.readLine()) != null){
+                    tok = new StringTokenizer(line, "\t");
+                    tok_title = tok.nextToken();
+                    tok_flag = tok.nextToken();
+                    if(tok_title.equals("title"+file_number)){
+                        tok_flag = "false";
+                    }
+                    bw.write(tok_title+"\t"+tok_flag);
+                    bw.newLine();
+                }
+                bw.close();
+                br.close();
+                Sintyoku.delete();
+                Sintyoku2.renameTo(Sintyoku);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
 
             //チェック入り（true）かチェック無し（false）をtest.txtに書き込み
             try {
@@ -623,19 +659,21 @@ public class AnswerActivity extends AppCompatActivity {
                 nasi_match = 0;
                 ari_miss = 0;
                 nasi_miss = 0;
-                true_count = 0;
-                false_count = 0;
                 while ((line = br2.readLine()) != null) {
                     StringTokenizer tok = new StringTokenizer(line, "\t\t");
                     String tok_title = tok.nextToken();
-                    String tok_flag = tok.nextToken();
-                    if (tok_flag.equals("true")) {
-                        true_count++;
-                        flag = true;
+                    String tok_flag;
+                    if(tok.hasMoreTokens()) {
+                        tok_flag = tok.nextToken();
+                    }else {
+                        continue;
                     }
-                    else {
-                        false_count++;
+                    if (tok_flag.equals("true")) {
+                        flag = true;
+                    } else if(tok_flag.equals("false")) {
                         flag = false;
+                    }else{
+                        continue;
                     }
                     try {
                         BufferedReader br3 = new BufferedReader(new FileReader(Title));//title.txtの内容
@@ -647,7 +685,7 @@ public class AnswerActivity extends AppCompatActivity {
                                 if(flag){
                                     ari_match++;
                                 }else{
-                                    nasi_miss++;
+                                    ari_miss++;
                                 }
                                 break;
                             }
@@ -664,7 +702,7 @@ public class AnswerActivity extends AppCompatActivity {
                             String tok3_ransu = tok3.nextToken();
                             if (tok3_ransu.equals("0") && tok_title.equals(tok3_title)) {
                                 if(flag){
-                                    ari_miss++;
+                                    nasi_miss++;
                                 }else{
                                     nasi_match++;
                                 }
@@ -679,14 +717,11 @@ public class AnswerActivity extends AppCompatActivity {
                 br2.close();
                 Result.createNewFile();
                 try {
-                    int all = ((ari_match + nasi_match)*100) / (true_count + false_count);
-                    int ari = 0;
-                    if(true_count != 0){
-                        ari = (ari_match * 100) / true_count;
-                    }
-                    int nasi = (nasi_match*100) / false_count;
+                    int all = ((ari_match + nasi_match) * 100) / (ari_match+ari_miss+nasi_match+nasi_miss);
+                    int ari = (ari_match * 100) / (ari_match+ari_miss);
+                    int nasi = (nasi_match * 100) / (nasi_match+nasi_miss);
                     BufferedWriter bw = new BufferedWriter(new FileWriter(Result, true));
-                    bw.write(file_number + "\t\t" + "HyojiJikan(mms):" + Hyoji_Jikan + "\t\t" + "HyojiKensu:" + hyojisuu + "\t\t" + "KijiKensu:" + kijisuu + "\t\t" + "Seikai(o-o):" + ari_match +  "\t\t" + "Seikai(x-x):" + nasi_match +  "\t\t" + "Miss(o-x):" + ari_miss +  "\t\t" + "Miss(x-o):" + nasi_miss + "\t\t" + "SeikaiALL(%):" + all + "\t\t" + "SeikaiARI(%):" + ari + "\t\t" + "SeikaiNASI(%):" + nasi);
+                    bw.write(file_number+ "\t\t" +"TIME:"+ displaytime + "\t\t" +"kijisu:"+MainActivity.DisplayNumAll+"\t\t"+"hyojisu:"+MainActivity.DisplayNum + "\t\t" + "Seikai(o-o):" + ari_match + "\t\t" + "Seikai(x-x):" + nasi_match + "\t\t" + "Miss(o-x):" + ari_miss + "\t\t" + "Miss(x-o):" + nasi_miss + "\t\t" + "SeikaiALL(%):" + all + "\t\t" + "SeikaiARI(%):" + ari + "\t\t" + "SeikaiNASI(%):" + nasi);
                     bw.newLine();
                     bw.close();
                 }catch (IOException e){
@@ -695,6 +730,9 @@ public class AnswerActivity extends AppCompatActivity {
             }catch (IOException e){
                 e.printStackTrace();
             }
+
+            Intent intent = new Intent();
+            intent.setClassName("com.example.owner.listsample2", "com.example.owner.listsample2.MainActivity");
 
             startActivity(intent);
         }
@@ -722,12 +760,12 @@ public class AnswerActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private  View.OnClickListener nButtonOnClickListener = new View.OnClickListener(){
+    /*private  View.OnClickListener nButtonOnClickListener = new View.OnClickListener(){
         @Override
         public void onClick(View v) {
             hoge();
         }
-    };
+    };*/
 
     public void hoge() {
         final String DIR = Environment.getExternalStorageDirectory().getPath()+"/data/"+"/hyz/";
@@ -746,24 +784,30 @@ public class AnswerActivity extends AppCompatActivity {
                 File Te = new File(TE);
                 File Ti = new File(TI);
                 File Mi = new File(MI);
+                if(!Mi.exists()){
+                    continue;
+                }
                 int ari_match2 = 0;
                 int nasi_match2 = 0;
                 int ari_miss2 = 0;
                 int nasi_miss2 = 0;
-                int true_count2 = 0;
-                int false_count2 = 0;
                     try {
                         BufferedReader br2 = new BufferedReader(new FileReader(Mi));
                         while ((a = br2.readLine()) != null) {
                             StringTokenizer tok = new StringTokenizer(a, "\t\t");
                             String tok_title = tok.nextToken();
-                            String tok_flag = tok.nextToken();
+                            String tok_flag;
+                            if(tok.hasMoreTokens()) {
+                                tok_flag = tok.nextToken();
+                            }else {
+                                continue;
+                            }
                             if (tok_flag.equals("true")) {
-                                true_count2++;
                                 ff = true;
-                            } else {
-                                false_count2++;
+                            } else if(tok_flag.equals("false")) {
                                 ff = false;
+                            }else {
+                                continue;
                             }
                             try {
                                 BufferedReader br3 = new BufferedReader(new FileReader(Ti));//title.txtの内容
@@ -775,7 +819,7 @@ public class AnswerActivity extends AppCompatActivity {
                                         if (ff) {
                                             ari_match2++;
                                         } else {
-                                            nasi_miss2++;
+                                            ari_miss2++;
                                         }
                                         break;
                                     }
@@ -792,7 +836,7 @@ public class AnswerActivity extends AppCompatActivity {
                                     String tok3_ransu = tok3.nextToken();
                                     if (tok3_ransu.equals("0") && tok_title.equals(tok3_title)) {
                                         if (ff) {
-                                            ari_miss2++;
+                                            nasi_miss2++;
                                         } else {
                                             nasi_match2++;
                                         }
@@ -806,13 +850,11 @@ public class AnswerActivity extends AppCompatActivity {
                         }
                         br2.close();
                         Re.createNewFile();
+                        if((ari_match2+ari_miss2 == 0) || (nasi_match2+nasi_miss2 == 0))continue;
                         try {
-                            int all2 = ((ari_match2 + nasi_match2) * 100) / (true_count2 + false_count2);
-                            int ari2 = 0;
-                            if(true_count2 != 0){
-                                ari2 = (ari_match2 * 100) / true_count2;
-                            }
-                            int nasi2 = (nasi_match2 * 100) / false_count2;
+                            int all2 = ((ari_match2 + nasi_match2) * 100) / (ari_match2+ari_miss2+nasi_match2+nasi_miss2);
+                            int ari2 = (ari_match2 * 100) / (ari_match2+ari_miss2);
+                            int nasi2 = (nasi_match2 * 100) / (nasi_match2+nasi_miss2);
                             BufferedWriter bw = new BufferedWriter(new FileWriter(Re, true));
                             bw.write(file_num + "\t\t" + "Seikai(o-o):" + ari_match2 + "\t\t" + "Seikai(x-x):" + nasi_match2 + "\t\t" + "Miss(o-x):" + ari_miss2 + "\t\t" + "Miss(x-o):" + nasi_miss2 + "\t\t" + "SeikaiALL(%):" + all2 + "\t\t" + "SeikaiARI(%):" + ari2 + "\t\t" + "SeikaiNASI(%):" + nasi2);
                             bw.newLine();

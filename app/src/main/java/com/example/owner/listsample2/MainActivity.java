@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.commons.net.ftp.FTP;
@@ -26,16 +27,19 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.SocketException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -51,26 +55,27 @@ public class MainActivity extends AppCompatActivity {
     File directory;
     String LOGDIR = Environment.getExternalStorageDirectory().getPath();
     String LOG = Environment.getExternalStorageDirectory().getPath()+"/data/exp/hensu.txt";
+    String LOG2 = Environment.getExternalStorageDirectory().getPath()+"/data/exp/sintyoku.txt";
     String EXP = Environment.getExternalStorageDirectory().getPath()+"/data/exp/";
     static String path;
     String resultFileName;
     String date;
     CharSequence userName;
     File Change = new File(LOG);
-    static int Time1;
-    static int Time2;
-    static int Time3;
-    static int Time4;
-    static int Time5;
-    static int Time6;
-    static int Time7;
-    static int HyojiKensu;
-    static int KijiKensu;
+    File HowMany = new File(LOG2);
+    String filename;
+    int folda_num;
+    int how_many;
+    int[] time;
+    static int DisplayTime;
+    static int DisplayNum;      //選択画面で表示する視認画面で表示する見出しの件数
+    static int DisplayNumAll;   //視認画面で表示する見出しの件数
     AsyncTask<Void, Void, String> task;
 
     ArrayList<Map<String,Object>> list = new ArrayList<Map<String, Object>>();
     SimpleAdapter adapter;
     ListView lv;
+    TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,28 +100,28 @@ public class MainActivity extends AppCompatActivity {
         lv.setAdapter(adapter);*/
 
         // ListView を取得
-        lv = (ListView) findViewById(R.id.listView1);
+        //lv = (ListView) findViewById(R.id.listView1);
         // SimpleAdapterに渡すArrayList作成
-        createData();
+        //createData();
         // リストビューに渡すアダプタを生成
-        adapter = new SimpleAdapter(
+        /*adapter = new SimpleAdapter(
                 this,
                 list,//ArrayList
                 R.layout.item,//ListView内の1項目を定義したxml
         new String[] { "pattern", "comment"},//mapのキー
-        new int[] {R.id.item_name, R.id.comment});//item.xml内のid
+        new int[] {R.id.item_name, R.id.comment});//item.xml内のid*/
         // アダプタをセット
-        lv.setAdapter(adapter);
+        //lv.setAdapter(adapter);
 
         //アイテムがクリックされたときの処理
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        /*lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {*/
                 //クリックされたものを取得
                 /*String get_parent = (String) parent.getClass().getSimpleName();
                 String get_position = String.valueOf(position);
                 String get_id = String.valueOf(id);*/
-                Intent intent = new Intent();//this,TestActivity.class
+                /*Intent intent = new Intent();//this,TestActivity.class
                 intent.setClassName("com.example.owner.listsample2", "com.example.owner.listsample2.TestActivity");
 
                 //String number = (String) parent.getItemAtPosition(position);      // 選択された項目の要素名を取得
@@ -126,7 +131,10 @@ public class MainActivity extends AppCompatActivity {
 
                 startActivity(intent);
             }
-        });
+        });*/
+
+        textView = (TextView) findViewById(R.id.message);
+        //textView.setText("");
 
         // クリックイベントを取得したいボタン
         Button downloadButton = (Button)findViewById(R.id.downloadButton);
@@ -139,20 +147,24 @@ public class MainActivity extends AppCompatActivity {
         Button sendButton = (Button)findViewById(R.id.sendButton);
         sendButton.setOnClickListener(sendButtonOnClickListener);
 
+        Button startButton = (Button)findViewById(R.id.startButton);
+        startButton.setOnClickListener(startButtonOnClickListener);
+
         progressHandler = new ProgressHandler();
 
+        makeEXP();
         makeEXP_fin();
 
         if(Change.exists() == true){
-            //Toast ts = Toast.makeText(this, "あったよ", Toast.LENGTH_LONG);
-            //ts.show();
-            change_hensu();
-        }else{
-            Toast ts = Toast.makeText(this, "ファイル(hensu.txt)は存在しません", Toast.LENGTH_LONG);
-            ts.show();
+            hensu();
+        }
+
+        if(HowMany.exists() == true){
+            how_many();
         }
     }
 
+    /*
     private void createData() {
         for (int n = 1; n <= 7; n++) {
             int k = 0;
@@ -171,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
             }
             list.add(data);
         }
-    }
+    }*/
 
     //全てのtitleフォルダを格納するexpフォルダを作成する
     void makeEXP(){
@@ -185,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //終了したフォルダを格納するexp_finishフォルダを作成する
     void makeEXP_fin(){
         File expfin = new File(LOGDIR+"/data/exp_finish/");
         if(expfin.exists() == false){
@@ -211,10 +224,26 @@ public class MainActivity extends AppCompatActivity {
 
     //現在時刻を返す
     public static String getNowDate(){
-        final DateFormat df = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss");
+        final DateFormat df = new SimpleDateFormat("yyyy.MM.dd HH.mm");
         final Date date = new Date(System.currentTimeMillis());
         return df.format(date);
     }
+
+    private  View.OnClickListener startButtonOnClickListener = new View.OnClickListener(){
+        @Override
+        public void onClick(View v) {
+            if (how_many != 0) {
+                Intent intent = new Intent();//this,TestActivity.class
+                intent.setClassName("com.example.owner.listsample2", "com.example.owner.listsample2.TestActivity");
+
+                intent.putExtra("FILENAME", filename);
+                intent.putExtra("DISPLAYTIME", DisplayTime);
+                intent.putExtra("NUMBER", folda_num);
+
+                startActivity(intent);
+            }
+        }
+    };
 
     private  View.OnClickListener downloadButtonOnClickListener = new View.OnClickListener(){
         @Override
@@ -237,6 +266,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    //ダウンロードを開始する
     private void initFileLoader()
     {
         for(int i=1;i <= 7;i++){    //titlei_j.txt
@@ -268,32 +298,93 @@ public class MainActivity extends AppCompatActivity {
         File outputFile = new File(directory, "hensu.txt");
         asyncfiledownload = new AsyncFileDownload(this,DOWNLOAD_FILE_URL, outputFile);
         asyncfiledownload.execute();
+
+        String DOWNLOAD_FILE_URL2 = "http://koblab.cs.ehime-u.ac.jp/~ono/exp/sintyoku.txt";//追加
+        File outputFile2 = new File(directory, "sintyoku.txt");
+        asyncfiledownload = new AsyncFileDownload(this,DOWNLOAD_FILE_URL2, outputFile2);
+        asyncfiledownload.execute();
     }
 
     private  View.OnClickListener kousinButtonOnClickListener = new View.OnClickListener(){
         @Override
         public void onClick(View v) {
-            Toast.makeText(MainActivity.this, "変数の値を更新します", Toast.LENGTH_SHORT).show();
-            change_hensu();
+            hensu();
+            how_many();
+            shuffle();
+            Toast.makeText(MainActivity.this, "実験の条件を変更します", Toast.LENGTH_SHORT).show();
         }
     };
 
-    private void change_hensu(){
+    private void hensu(){        //更新ボタンが押されたとき、ホーム画面が表示された時に実行される
         try {
             BufferedReader br = new BufferedReader(new FileReader(Change));
             String line = br.readLine();
             StringTokenizer token = new StringTokenizer(line, "\t");
-            Time1 = Integer.valueOf(token.nextToken());
-            Time2 = Integer.valueOf(token.nextToken());
-            Time3 = Integer.valueOf(token.nextToken());
-            Time4 = Integer.valueOf(token.nextToken());
-            Time5 = Integer.valueOf(token.nextToken());
-            Time6 = Integer.valueOf(token.nextToken());
-            Time7 = Integer.valueOf(token.nextToken());
-            HyojiKensu = Integer.valueOf(token.nextToken());
-            KijiKensu = Integer.valueOf(token.nextToken());
-            //System.out.println(Time1);
+            int count = token.countTokens() - 2;     //hensu.txt内の表示時間の個数
+            time = new int[count];
+            for(int i=0; i < count; i++){
+                time[i] = Integer.valueOf(token.nextToken());
+            }
+            DisplayNum = Integer.valueOf(token.nextToken());
+            DisplayNumAll = Integer.valueOf(token.nextToken());
             br.close();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    private void how_many(){        //更新ボタンが押されたとき、ホーム画面が表示された時に実行される
+        how_many = 0;
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(HowMany));
+            String line;
+            StringTokenizer tok;
+            String tok_titlenum;
+            String tok_flag;
+            while((line = br.readLine()) != null){
+                tok = new StringTokenizer(line, "\t");
+                tok_titlenum = tok.nextToken();
+                tok_flag = tok.nextToken();
+                if(tok_flag.equals("true")){
+                    how_many++;
+                    filename = tok_titlenum;
+                }
+            }
+            if(!(how_many == 0)) {
+                textView.setText("あと残り" + how_many + "回です");
+                folda_num = Character.getNumericValue(filename.charAt(5));
+                DisplayTime = time[folda_num-1];      //表示時間を定める
+            }else{
+                textView.setText("実験終了です。結果を送信して下さい。");
+                filename = null;
+            }
+            br.close();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    void shuffle(){
+        //sintyoku.txtを編集
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(HowMany));
+            String line;
+            String line1;
+            ArrayList<String> list1 = new ArrayList<String>();
+            while((line = br.readLine()) != null){
+                list1.add(line);
+            }
+            Collections.shuffle(list1);
+            br.close();
+            BufferedWriter bw = new BufferedWriter(new FileWriter(HowMany,false));
+            int i = 0;
+            while(i < list1.size()){
+                line1 = list1.get(i);
+                bw.write(line1);
+                bw.newLine();
+                i++;
+            }
+            bw.close();
         } catch (IOException e1) {
             e1.printStackTrace();
         }

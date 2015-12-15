@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -23,20 +24,17 @@ import java.util.Random;
  * Created by Owner on 2015/10/05.
  */
 public class TestActivity extends AppCompatActivity {
-    int hyojisuu = MainActivity.HyojiKensu;         //ウェブ上で変更できるようにする
-    int kijisuu = MainActivity.KijiKensu;
+    //int hyojisuu = MainActivity.HyojiKensu;         //ウェブ上で変更できるようにする
+    //int kijisuu = MainActivity.KijiKensu;
     String line;
-    int time_hyoji;
+    final String LOGDIR = Environment.getExternalStorageDirectory().getPath()+"/data/exp/";
+    String SDFILE;
+    String filename;
+    int displaytime;
+    int folda_num;
     String title_num;
-    final String LOGDIR = Environment.getExternalStorageDirectory().getPath()+"/data/"+"/exp/";
-    File Title;
-    File file1;
-    File file2;
-    File file3;
-    File file4;
-    File file5;
 
-    final String SDFILE1_1 = LOGDIR + "/title1/" + "title1_1.txt";
+    /*final String SDFILE1_1 = LOGDIR + "/title1/" + "title1_1.txt";
     final String SDFILE1_2 = LOGDIR + "/title1/" + "title1_2.txt";
     final String SDFILE1_3 = LOGDIR + "/title1/" + "title1_3.txt";
     final String SDFILE1_4 = LOGDIR + "/title1/" + "title1_4.txt";
@@ -118,7 +116,7 @@ public class TestActivity extends AppCompatActivity {
     final String SDFILE7_2fin = LOGDIR + "/title7/" + "title7_2fin.txt";
     final String SDFILE7_3fin = LOGDIR + "/title7/" + "title7_3fin.txt";
     final String SDFILE7_4fin = LOGDIR + "/title7/" + "title7_4fin.txt";
-    final String SDFILE7_5fin = LOGDIR + "/title7/" + "title7_5fin.txt";
+    final String SDFILE7_5fin = LOGDIR + "/title7/" + "title7_5fin.txt";*/
     //File Title7 = new File(SDFILE7);
 
     public void onCreate(Bundle savedInstanceState) {
@@ -129,8 +127,15 @@ public class TestActivity extends AppCompatActivity {
         ArrayList<String> list = new ArrayList<String>();
 
         Intent intent = getIntent();
-        int number = intent.getIntExtra("NUMBER",0);
-        switch (number){
+        filename = intent.getStringExtra("FILENAME");
+        displaytime = intent.getIntExtra("DISPLAYTIME", 0);
+        folda_num = intent.getIntExtra("NUMBER", 0);
+        title_num = filename.substring(5, 8);
+
+        SDFILE = LOGDIR+"/title"+folda_num+"/"+filename+".txt";
+        File Title = new File(SDFILE);
+
+        /*switch (number){
             case 0:
                 time_hyoji = MainActivity.Time1;
                 file1 = new File(SDFILE1_1);
@@ -411,7 +416,7 @@ public class TestActivity extends AppCompatActivity {
                     startActivity(intent7);
                 }
 
-        }
+        }*/
 
         //listに表示する要素を格納
         try {
@@ -431,19 +436,19 @@ public class TestActivity extends AppCompatActivity {
                 for(String title:list){
                     Random rnd = new Random();
                     int ran = rnd.nextInt(2);
-                    if((ran == 0) && (ran0 < kijisuu-hyojisuu)){
+                    if((ran == 0) && (ran0 < MainActivity.DisplayNumAll-MainActivity.DisplayNum)){
                         ran0++;
                         bw.write(title+"\t\t"+ran);
                         bw.newLine();
-                    }else if((ran == 1) && (ran1 < hyojisuu)){
+                    }else if((ran == 1) && (ran1 < MainActivity.DisplayNum)){
                         ran1++;
                         bw.write(title+"\t\t"+ran);
                         bw.newLine();
-                    }else if((ran == 0) && (ran0 == kijisuu-hyojisuu)){
+                    }else if((ran == 0) && (ran0 == MainActivity.DisplayNumAll-MainActivity.DisplayNum)){
                         ran = 1;
                         bw.write(title+"\t\t"+ran);
                         bw.newLine();
-                    }else if((ran == 1) && (ran1 == hyojisuu)){
+                    }else if((ran == 1) && (ran1 == MainActivity.DisplayNum)){
                         ran = 0;
                         bw.write(title+"\t\t"+ran);
                         bw.newLine();
@@ -468,12 +473,12 @@ public class TestActivity extends AppCompatActivity {
                 //ここにかく
                 Intent intent = new Intent();//this,TestActivity.class
                 intent.setClassName("com.example.owner.listsample2", "com.example.owner.listsample2.AnswerActivity");
-                intent.putExtra("FILE_NUMBER", title_num);
-                //String time = String.valueOf(time_hyoji);
-                intent.putExtra("HyojiTime", time_hyoji);
+                intent.putExtra("TITLE_NUMBER", title_num);//1_1など
+                intent.putExtra("DISPLAYTIME", displaytime);//8000など
+                intent.putExtra("NUMBER", folda_num);//1など
                 startActivity(intent);
             }
-        }, time_hyoji);
+        }, displaytime);
     }
 
     public boolean dispatchKeyEvent(KeyEvent event){
